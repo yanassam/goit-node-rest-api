@@ -15,11 +15,52 @@ import {
 
 const contactsRouter = express.Router();
 
-contactsRouter.get("/", getAllContacts);
-contactsRouter.get("/:id", getOneContact);
-contactsRouter.delete("/:id", deleteContact);
+contactsRouter.get("/", async (req, res, next) => {
+  try {
+    await getAllContacts(req, res, next);
+  } catch (error) {
+    next(error);
+  }
+});
 
-contactsRouter.post("/", validateBody(createContactSchema), createContact);
-contactsRouter.put("/:id", validateBody(updateContactSchema), updateContact);
+contactsRouter.get("/:id", async (req, res, next) => {
+  try {
+    await getOneContact(req, res, next);
+  } catch (error) {
+    next(error);
+  }
+});
+
+contactsRouter.delete("/:id", async (req, res, next) => {
+  try {
+    await deleteContact(req, res, next);
+  } catch (error) {
+    next(error);
+  }
+});
+
+contactsRouter.post(
+  "/",
+  validateBody(createContactSchema),
+  async (req, res, next) => {
+    try {
+      await createContact(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+contactsRouter.put(
+  "/:id",
+  validateBody(updateContactSchema),
+  async (req, res, next) => {
+    try {
+      await updateContact(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 export default contactsRouter;
