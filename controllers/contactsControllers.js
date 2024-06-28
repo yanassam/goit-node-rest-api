@@ -1,11 +1,64 @@
-import contactsService from "../services/contactsServices.js";
+import {
+  listContacts,
+  getContactById,
+  removeContact,
+  addContact,
+  updateContact as updateContactService,
+} from "../services/contactsServices.js";
 
-export const getAllContacts = (req, res) => {};
+import HttpError from "../helpers/HttpError.js";
 
-export const getOneContact = (req, res) => {};
+export const getAllContacts = async (req, res, next) => {
+  try {
+    const contacts = await listContacts();
+    res.status(200).json(contacts);
+  } catch (error) {
+    next(HttpError(500, "Server error"));
+  }
+};
 
-export const deleteContact = (req, res) => {};
+export const getOneContact = async (req, res, next) => {
+  try {
+    const contact = await getContactById(req.params.id);
+    if (!contact) {
+      return next(HttpError(404, "Not found"));
+    }
+    res.status(200).json(contact);
+  } catch (error) {
+    next(HttpError(500, "Server error"));
+  }
+};
 
-export const createContact = (req, res) => {};
+export const deleteContact = async (req, res, next) => {
+  try {
+    const contact = await removeContact(req.params.id);
+    if (!contact) {
+      return next(HttpError(404, "Not found"));
+    }
+    res.status(200).json(contact);
+  } catch (error) {
+    next(HttpError(500, "Server error"));
+  }
+};
 
-export const updateContact = (req, res) => {};
+export const createContact = async (req, res, next) => {
+  try {
+    const { name, email, phone } = req.body;
+    const newContact = await addContact(name, email, phone);
+    res.status(201).json(newContact);
+  } catch (error) {
+    next(HttpError(500, "Server error"));
+  }
+};
+
+export const updateContact = async (req, res, next) => {
+  try {
+    const contact = await updateContactService(req.params.id, req.body);
+    if (!contact) {
+      return next(HttpError(404, "Not found"));
+    }
+    res.status(200).json(contact);
+  } catch (error) {
+    next(HttpError(500, "Server error"));
+  }
+};
