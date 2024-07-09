@@ -5,12 +5,14 @@ import {
   deleteContact,
   createContact,
   updateContact,
+  updateStatusContact,
 } from "../controllers/contactsControllers.js";
 
 import validateBody from "../helpers/validateBody.js";
 import {
   createContactSchema,
   updateContactSchema,
+  updateStatusSchema,
 } from "../schemas/contactsSchemas.js";
 
 const contactsRouter = express.Router();
@@ -57,6 +59,18 @@ contactsRouter.put(
   async (req, res, next) => {
     try {
       await updateContact(req, res, next);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+contactsRouter.patch(
+  "/:contactId/favorite",
+  validateBody(updateStatusSchema),
+  async (req, res, next) => {
+    try {
+      await updateStatusContact(req, res, next);
     } catch (error) {
       next(error);
     }
