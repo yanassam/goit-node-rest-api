@@ -1,7 +1,8 @@
+// app.js
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
-
+import initMongoDBConnection from "./db/db.js";
 import contactsRouter from "./routes/contactsRouter.js";
 
 const app = express();
@@ -17,10 +18,21 @@ app.use((req, res) => {
 });
 
 app.use((err, req, res, next) => {
+  console.error("Error handler called:", err);
   const { status = 500, message = "Server error" } = err;
   res.status(status).json({ message });
 });
 
-app.listen(3000, () => {
-  console.log("Server is running. Use our API on port: 3000");
-});
+const startServer = async () => {
+  try {
+    await initMongoDBConnection();
+    app.listen(3000, () => {
+      console.log("Server is running. Use our API on port: 3000");
+    });
+  } catch (error) {
+    console.error("Failed to connect to the database:", error);
+    process.exit(1);
+  }
+};
+
+startServer();
