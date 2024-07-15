@@ -1,4 +1,5 @@
-import express from "express";
+import { Router } from "express";
+import authenticate from "../middleware/authenticate.js";
 import {
   getAllContacts,
   getOneContact,
@@ -15,7 +16,9 @@ import {
   updateStatusSchema,
 } from "../schemas/contactsSchemas.js";
 
-const contactsRouter = express.Router();
+const contactsRouter = Router();
+
+contactsRouter.use(authenticate);
 
 contactsRouter.get("/", async (req, res, next) => {
   try {
