@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 
-const contactSchema = new mongoose.Schema({
+const { Schema, model } = mongoose;
+
+const contactSchema = new Schema({
   name: {
     type: String,
     required: [true, "Set name for contact"],
@@ -15,8 +17,12 @@ const contactSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  owner: {
+    type: Schema.Types.ObjectId,
+    ref: "user",
+  },
 });
 
-const Contact = mongoose.model("Contact", contactSchema);
+const Contact = model("Contact", contactSchema);
 
 export default Contact;

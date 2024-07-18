@@ -1,8 +1,14 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
 import initMongoDBConnection from "./db/db.js";
 import contactsRouter from "./routes/contactsRouter.js";
+import authRouter from "./routes/authRouter.js";
+
+console.log("JWT_SECRET from .env:", process.env.JWT_SECRET);
 
 const app = express();
 
@@ -11,6 +17,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/contacts", contactsRouter);
+app.use("/users", authRouter);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
