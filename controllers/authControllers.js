@@ -3,7 +3,9 @@ dotenv.config();
 
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import gravatar from "gravatar";
 import User from "../models/user.js";
+
 import HttpError from "../helpers/HttpError.js";
 import ctrlWrapper from "../decorators/ctrlWrapper.js";
 
@@ -19,10 +21,14 @@ const registerHandler = async (req, res) => {
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
+
+  const avatarURL = gravatar.url(email, { s: "250", d: "retro" }, true);
+
   const newUser = await User.create({
-    username,
+    username: username || "defaultUsername",
     email,
     password: hashedPassword,
+    avatarURL,
   });
 
   res.status(201).json({
@@ -30,6 +36,7 @@ const registerHandler = async (req, res) => {
       email: newUser.email,
       subscription: newUser.subscription,
       username: newUser.username,
+      avatarURL: newUser.avatarURL,
     },
   });
 };
@@ -60,6 +67,7 @@ const loginHandler = async (req, res) => {
       email: user.email,
       subscription: user.subscription,
       username: user.username,
+      avatarURL: user.avatarURL,
     },
   });
 };
