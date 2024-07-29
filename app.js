@@ -10,6 +10,7 @@ import initMongoDBConnection from "./db/db.js";
 import contactsRouter from "./routes/contactsRouter.js";
 import authRouter from "./routes/authRouter.js";
 import userRouter from "./routes/userRouter.js";
+import verifyRouter from "./routes/verifyRouter.js";
 
 console.log("JWT_SECRET from .env:", process.env.JWT_SECRET);
 
@@ -43,6 +44,8 @@ console.log("authRouter set up");
 
 app.use("/users", userRouter);
 console.log("userRouter set up");
+
+app.use("/users", verifyRouter);
 
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });

@@ -4,12 +4,14 @@ dotenv.config();
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import gravatar from "gravatar";
+import { nanoid } from "nanoid";
 import User from "../models/user.js";
 
 import HttpError from "../helpers/HttpError.js";
 import ctrlWrapper from "../decorators/ctrlWrapper.js";
+import sendEmail from "../services/sendEmail.js";
 
-const { JWT_SECRET } = process.env;
+const { JWT_SECRET, BASE_URL } = process.env;
 console.log("JWT_SECRET in authControllers:", JWT_SECRET);
 
 const registerHandler = async (req, res) => {
@@ -21,24 +23,49 @@ const registerHandler = async (req, res) => {
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-
   const avatarURL = gravatar.url(email, { s: "250", d: "retro" }, true);
+  const verificationToken = nanoid();
+  console.log("Generated verificationToken:", verificationToken);
 
-  const newUser = await User.create({
-    username: username || "defaultUsername",
-    email,
-    password: hashedPassword,
-    avatarURL,
-  });
+  try {
+    console.log("Attempting to create new user with data:", {
+      username: username || "defaultUsername",
+      email,
+      password: hashedPassword,
+      avatarURL,
+      verificationToken,
+    });
 
-  res.status(201).json({
-    user: {
-      email: newUser.email,
-      subscription: newUser.subscription,
-      username: newUser.username,
-      avatarURL: newUser.avatarURL,
-    },
-  });
+    const newUser = await User.create({
+      username: username || "defaultUsername",
+      email,
+      password: hashedPassword,
+      avatarURL,
+      verificationToken,
+    });
+
+    console.log("New user created successfully:", newUser);
+    const verificationLink = `${BASE_URL}/users/verify/${verificationToken}`;
+    const emailContent = {
+      to: email,
+      subject: "Email Verification",
+      html: `<a href="${verificationLink}">Click here to verify your email</a>`,
+    };
+
+    await sendEmail(emailContent);
+
+    res.status(201).json({
+      user: {
+        email: newUser.email,
+        subscription: newUser.subscription,
+        username: newUser.username,
+        avatarURL: newUser.avatarURL,
+      },
+    });
+  } catch (error) {
+    console.error("Error creating user:", error);
+    throw HttpError(400, "Error creating user");
+  }
 };
 
 const loginHandler = async (req, res) => {

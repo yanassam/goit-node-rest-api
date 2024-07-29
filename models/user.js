@@ -1,5 +1,4 @@
 import { Schema, model } from "mongoose";
-import gravatar from "gravatar";
 
 const userSchema = new Schema({
   password: {
@@ -23,6 +22,14 @@ const userSchema = new Schema({
   avatarURL: {
     type: String,
     default: "",
+  },
+  verificationToken: {
+    type: String,
+    default: null,
+  },
+  verify: {
+    type: Boolean,
+    default: false,
   },
 });
 
